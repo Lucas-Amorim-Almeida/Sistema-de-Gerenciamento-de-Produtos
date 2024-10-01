@@ -5,11 +5,12 @@ import { OrderType } from "@/@types/types";
 export default class Order {
   private order: OrderType;
 
-  constructor(product: Product, qty: number, id?: string) {
+  constructor(product: Product, qty: number, user_id: string, id?: string) {
     if (qty <= 0) throw new Error("Invalid Order.");
 
     this.order = {
       id: id,
+      user_id,
       listItens: [
         {
           product: product.getProduct(),

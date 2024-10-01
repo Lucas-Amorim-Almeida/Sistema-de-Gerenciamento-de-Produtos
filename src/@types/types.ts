@@ -22,4 +22,5 @@ export type OrderType = {
   id: string | undefined;
   listItens: OrderRequestType[];
   status: OrderStatus;
+  user_id: string;
 };
