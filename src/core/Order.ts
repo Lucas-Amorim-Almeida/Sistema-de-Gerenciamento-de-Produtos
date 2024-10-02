@@ -7,13 +7,15 @@ export default class Order {
 
   constructor(product: Product, qty: number, user_id: string, id?: string) {
     if (qty <= 0) throw new Error("Invalid Order.");
-
+    const productData = product.getProduct();
+    if (!("id" in productData))
+      throw new Error("this product not exists in database.");
     this.order = {
-      id: id,
+      id: id ? id : "",
       user_id,
       listItens: [
         {
-          product: product.getProduct(),
+          product: productData,
           quantity: qty,
         },
       ],
@@ -22,9 +24,11 @@ export default class Order {
   }
 
   public search(product: Product) {
+    const productData = product.getProduct();
+    if (!("id" in productData)) return null;
     for (let i = 0; i < this.order.listItens.length; i++) {
       const item = this.order.listItens[i];
-      if (item.product.id === product.getProduct().id) {
+      if (item.product.id === productData.id) {
         return { item, index: i };
       }
     }
@@ -33,8 +37,11 @@ export default class Order {
 
   public addProductToOrder(product: Product, qty: number) {
     if (qty <= 0) return;
+    const productData = product.getProduct();
+    if (!("id" in productData))
+      throw new Error("this product not exists in database.");
     if (this.search(product) !== null) return;
-    this.order.listItens.push({ product: product.getProduct(), quantity: qty });
+    this.order.listItens.push({ product: productData, quantity: qty });
   }
 
   public removeProductFromOrder(product: Product) {
@@ -65,7 +72,12 @@ export default class Order {
     this.order.status = newStatus;
   }
 
-  public getOrder() {
-    return this.order;
+  public getOrder(): OrderType | Omit<OrderType, "id"> {
+    const orderInfo = {
+      listItens: this.order.listItens,
+      status: this.order.status,
+      user_id: this.order.user_id,
+    };
+    return this.order.id === "" ? orderInfo : this.order;
   }
 }

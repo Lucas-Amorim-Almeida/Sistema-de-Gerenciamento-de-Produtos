@@ -19,7 +19,7 @@ export type OrderRequestType = {
 };
 
 export type OrderType = {
-  id: string | undefined;
+  id: string;
   listItens: OrderRequestType[];
   status: OrderStatus;
   user_id: string;

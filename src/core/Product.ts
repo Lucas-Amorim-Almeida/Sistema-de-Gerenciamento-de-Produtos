@@ -3,20 +3,18 @@ import { ProductType } from "@/@types/types";
 export default class Product {
   private product: ProductType;
 
-  constructor(name: string, description: string, price: number) {
+  constructor(name: string, description: string, price: number, id?: string) {
     this.product = {
-      id: this.idGenerator(),
+      id: id ? id : "",
       name,
       description,
       price,
     };
   }
 
-  private idGenerator(): string {
-    return (
-      new Date(Date.now()).toString() +
-      Math.ceil(Math.random() * 1000).toString()
-    );
+  public setID(productId: string) {
+    if (this.product.id !== "") return;
+    this.product.id = productId;
   }
 
   public setDecription(description: string) {
@@ -28,7 +26,12 @@ export default class Product {
     this.product.price = value;
   }
 
-  public getProduct(): ProductType {
-    return this.product;
+  public getProduct(): ProductType | Omit<ProductType, "id"> {
+    const productInfo = {
+      name: this.product.name,
+      description: this.product.description,
+      price: this.product.price,
+    };
+    return this.product.id === "" ? productInfo : this.product;
   }
 }
