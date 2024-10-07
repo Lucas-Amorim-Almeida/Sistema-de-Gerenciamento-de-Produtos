@@ -26,6 +26,7 @@ export default class ProductConnection {
     productId: string,
     productInfo: {
       name?: string;
+      image?: string;
       description?: string;
       price?: number;
     },

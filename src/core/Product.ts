@@ -3,10 +3,17 @@ import { ProductType } from "@/@types/types";
 export default class Product {
   private product: ProductType;
 
-  constructor(name: string, description: string, price: number, id?: string) {
+  constructor(
+    name: string,
+    description: string,
+    image: string,
+    price: number,
+    id?: string,
+  ) {
     this.product = {
       id: id ? id : "",
       name,
+      image,
       description,
       price,
     };
@@ -29,6 +36,7 @@ export default class Product {
   public getProduct(): ProductType | Omit<ProductType, "id"> {
     const productInfo = {
       name: this.product.name,
+      image: this.product.image,
       description: this.product.description,
       price: this.product.price,
     };

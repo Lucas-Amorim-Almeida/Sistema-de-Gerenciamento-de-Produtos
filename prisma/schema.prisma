@@ -35,6 +35,7 @@ model Order {
 model Product {
   id          String  @id @default(uuid())
   name        String
+  image       String
   price       Decimal
   description String
 
