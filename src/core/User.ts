@@ -1,8 +1,12 @@
 import { UserType } from "@/@types/types";
+import Bcrypt from "@/utils/Bcrypt";
 
 export default class User {
   private user: UserType;
+  private isHashedPassword: boolean;
+
   constructor(username: string, password: string, id?: string) {
+    this.isHashedPassword = false;
     this.user = {
       id: id ? id : "",
       username,
@@ -13,6 +17,35 @@ export default class User {
   public setId(id: string) {
     if (this.user.id !== "") return;
     this.user.id = id;
+  }
+
+  public async hashPassword() {
+    if (this.isHashedPassword) return;
+
+    const hashedPassword = await Bcrypt.hashPassword(this.user.password);
+    this.user.password = hashedPassword;
+    this.isHashedPassword = true;
+  }
+
+  public async userCompare(otherUser: User) {
+    //se o outro usuário tiver hash como senha: retorna exceção
+    if (otherUser.getIsHashedPassword())
+      throw new Error("'otherUser' must not have a hashed password.");
+    //se este usuário NÃO tiver hash como senha: retorna exceção
+    if (!this.isHashedPassword)
+      throw new Error("This User instance must have a hashed password.");
+
+    const { password: plainPassword } = otherUser.getUser();
+    const comparationResult = await Bcrypt.hashCompare(
+      plainPassword,
+      this.user.password,
+    );
+
+    return comparationResult;
+  }
+
+  public getIsHashedPassword(): boolean {
+    return this.isHashedPassword;
   }
 
   public getUser(): UserType | Omit<UserType, "id"> {
