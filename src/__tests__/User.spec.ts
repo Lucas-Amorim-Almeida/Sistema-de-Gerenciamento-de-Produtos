@@ -54,6 +54,18 @@ describe("Tests for User class", () => {
     });
   });
 
+  describe("Test of hashPassword method", () => {
+    it("Should be true", async () => {
+      await user.hashPassword();
+      expect(user.getIsHashedPassword()).toBeTruthy();
+    });
+
+    it("Should not return", async () => {
+      await user.hashPassword();
+      expect(await user.hashPassword()).toBeUndefined();
+    });
+  });
+
   describe("Test of getIsHashedPassword method", () => {
     it("Should be false", () => {
       expect(user.getIsHashedPassword()).toBeFalsy();
@@ -61,6 +73,55 @@ describe("Tests for User class", () => {
     it("Should be true", async () => {
       await user.hashPassword();
       expect(user.getIsHashedPassword()).toBeTruthy();
+    });
+  });
+
+  describe("Test of userCompare method", () => {
+    let userCreatedBySameData: User;
+    let userCreatedByDiferentData: User;
+    beforeEach(() => {
+      //usuários de mock para test de comparação de senha
+      userCreatedBySameData = new User(userData.username, userData.password);
+      userCreatedByDiferentData = new User(
+        userWithIdData.username,
+        userWithIdData.password,
+      );
+    });
+
+    it("Should be true", async () => {
+      await user.hashPassword();
+      expect(await user.userCompare(userCreatedBySameData)).toBeTruthy();
+    });
+
+    it("Should be false", async () => {
+      await user.hashPassword();
+      expect(await user.userCompare(userCreatedByDiferentData)).toBeFalsy();
+    });
+
+    it("Should have return an error user password without hash", async () => {
+      //sem hash na senha de user
+      try {
+        await user.userCompare(userCreatedBySameData);
+      } catch (error) {
+        if (error instanceof Error) {
+          expect(error.message).toEqual(
+            "This User instance must have a hashed password.",
+          );
+        }
+      }
+    });
+
+    it("Should have return an error user compared with hashed password", async () => {
+      try {
+        await userCreatedBySameData.hashPassword();
+        await user.userCompare(userCreatedBySameData);
+      } catch (error) {
+        if (error instanceof Error) {
+          expect(error.message).toEqual(
+            "'otherUser' must not have a hashed password.",
+          );
+        }
+      }
     });
   });
 });
