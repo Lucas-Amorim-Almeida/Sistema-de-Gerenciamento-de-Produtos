@@ -19,7 +19,7 @@ export default class Product {
     };
   }
 
-  public setID(productId: string) {
+  public setId(productId: string) {
     if (this.product.id !== "") return;
     this.product.id = productId;
   }
