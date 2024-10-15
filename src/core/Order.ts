@@ -7,9 +7,11 @@ export default class Order {
 
   constructor(product: Product, qty: number, user_id: string, id?: string) {
     if (qty <= 0) throw new Error("Invalid Order.");
+
     const productData = product.getProduct();
     if (!("id" in productData))
       throw new Error("this product not exists in database.");
+
     this.order = {
       id: id ? id : "",
       user_id,
@@ -23,9 +25,16 @@ export default class Order {
     };
   }
 
+  public setId(orderId: string) {
+    if (this.order.id !== "") return;
+    this.order.id = orderId;
+  }
+
   public search(product: Product) {
     const productData = product.getProduct();
+
     if (!("id" in productData)) return null;
+
     for (let i = 0; i < this.order.listItens.length; i++) {
       const item = this.order.listItens[i];
       if (item.product.id === productData.id) {
@@ -37,18 +46,24 @@ export default class Order {
 
   public addProductToOrder(product: Product, qty: number) {
     if (qty <= 0) return;
+
     const productData = product.getProduct();
     if (!("id" in productData))
       throw new Error("this product not exists in database.");
+
     if (this.search(product) !== null) return;
     this.order.listItens.push({ product: productData, quantity: qty });
   }
 
   public removeProductFromOrder(product: Product) {
-    const seachInOrderResult = this.search(product);
+    const searchInOrderResult = this.search(product);
     const { listItens } = this.order;
-    if (seachInOrderResult !== null) {
-      const newOrder = listItens.splice(seachInOrderResult.index, 1);
+    if (searchInOrderResult !== null) {
+      // const newOrder = listItens.splice(seachInOrderResult.index, 1);
+      //o método .splice não estava passando nos testes, por esse motivo troquei por esse laço for
+      const newOrder = [];
+      for (let i = 0; i < listItens.length; i++)
+        if (i !== searchInOrderResult.index) newOrder.push(listItens[i]);
       this.order.listItens = newOrder;
     }
   }

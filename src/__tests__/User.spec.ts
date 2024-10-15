@@ -100,28 +100,16 @@ describe("Tests for User class", () => {
 
     it("Should have return an error user password without hash", async () => {
       //sem hash na senha de user
-      try {
-        await user.userCompare(userCreatedBySameData);
-      } catch (error) {
-        if (error instanceof Error) {
-          expect(error.message).toEqual(
-            "This User instance must have a hashed password.",
-          );
-        }
-      }
+      await expect(user.userCompare(userCreatedBySameData)).rejects.toThrow(
+        "This User instance must have a hashed password.",
+      );
     });
 
     it("Should have return an error user compared with hashed password", async () => {
-      try {
-        await userCreatedBySameData.hashPassword();
-        await user.userCompare(userCreatedBySameData);
-      } catch (error) {
-        if (error instanceof Error) {
-          expect(error.message).toEqual(
-            "'otherUser' must not have a hashed password.",
-          );
-        }
-      }
+      await userCreatedBySameData.hashPassword();
+      await expect(user.userCompare(userCreatedBySameData)).rejects.toThrow(
+        "'otherUser' must not have a hashed password.",
+      );
     });
   });
 });
