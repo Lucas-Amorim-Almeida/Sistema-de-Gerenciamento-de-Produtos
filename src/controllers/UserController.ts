@@ -8,7 +8,7 @@ import {
 import { Request, Response } from "express";
 
 export default class UserController {
-  public async createUser(req: Request, res: Response) {
+  public static async createUser(req: Request, res: Response) {
     const { username, password } = req.body;
 
     //cria instancia da classe user com as informações vinda via request
@@ -22,7 +22,7 @@ export default class UserController {
     res.status(201).json({ user_id: newUser.id });
   }
 
-  public async login(req: Request, res: Response) {
+  public static async login(req: Request, res: Response) {
     const { username, password } = req.body;
     const requestUser = new User(username, password);
 
@@ -41,7 +41,7 @@ export default class UserController {
     res.status(200).json({ user_id: dbUserData.id });
   }
 
-  public async changePassword(req: Request, res: Response) {
+  public static async changePassword(req: Request, res: Response) {
     const { password, new_password } = req.body;
     const id = req.params.id;
 
@@ -64,7 +64,7 @@ export default class UserController {
     res.status(200).json({ message: "Password changed successfully." });
   }
 
-  public async deleteUser(req: Request, res: Response) {
+  public static async deleteUser(req: Request, res: Response) {
     const id = req.params.id;
 
     await UserConnection.deleteUser(id);
