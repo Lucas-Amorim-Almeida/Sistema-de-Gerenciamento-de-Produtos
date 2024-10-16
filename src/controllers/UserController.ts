@@ -42,8 +42,8 @@ export default class UserController {
   }
 
   public async changePassword(req: Request, res: Response) {
-    const { password, newPassword } = req.body;
-    const { id } = req.params;
+    const { password, new_password } = req.body;
+    const id = req.params.id;
 
     //buscando usuário correspondente ao id vindo atravez da request
     const dbUser = await UserConnection.getUser(id);
@@ -55,7 +55,7 @@ export default class UserController {
       throw new BadRequestError("Senha incorreta.");
 
     //tempUser: usuário temporário criado para fazer uso do método de hash de senha
-    const tempUser = new User("", newPassword);
+    const tempUser = new User("", new_password);
     await tempUser.hashPassword();
 
     //update da senha no banco de dados

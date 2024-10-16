@@ -6,7 +6,9 @@ export default class User {
   private isHashedPassword: boolean;
 
   constructor(username: string, password: string, id?: string) {
-    this.isHashedPassword = false;
+    //se houver algum id significa que user veio da base de dados que implica que a senha já vai estar hasheada
+    //Logo, basta verificar se há um id retornando um valor boolean correspondete para isHashedPassword
+    this.isHashedPassword = !!id;
     this.user = {
       id: id ? id : "",
       username,
