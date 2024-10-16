@@ -46,11 +46,11 @@ export default class UserController {
     const id = req.params.id;
 
     //buscando usuário correspondente ao id vindo atravez da request
-    const dbUser = await UserConnection.getUser(id);
+    const dbUser = await UserConnection.getUserById(id);
     if (dbUser === null) throw new NotFoundError("Usuario nao encontrado.");
 
     //requestUser: usuário sem username e password e id vindos atravez da request
-    const requestUser = new User("", password, id);
+    const requestUser = new User("", password);
     if (!(await dbUser.userCompare(requestUser)))
       throw new BadRequestError("Senha incorreta.");
 
@@ -61,6 +61,6 @@ export default class UserController {
     //update da senha no banco de dados
     await UserConnection.updatePassword(id, tempUser.getUser().password);
 
-    res.status(200);
+    res.status(200).json({ message: "Password changed successfully." });
   }
 }
