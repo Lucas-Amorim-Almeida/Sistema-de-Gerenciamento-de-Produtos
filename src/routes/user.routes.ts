@@ -8,5 +8,6 @@ const userController = new UserController();
 userRoutes.post("/", userController.createUser);
 userRoutes.post("/login", userController.login);
 userRoutes.post("/password/:id", userController.changePassword);
+userRoutes.delete("/:id", userController.deleteUser);
 
 export default userRoutes;

@@ -63,4 +63,12 @@ export default class UserController {
 
     res.status(200).json({ message: "Password changed successfully." });
   }
+
+  public async deleteUser(req: Request, res: Response) {
+    const id = req.params.id;
+
+    await UserConnection.deleteUser(id);
+
+    res.status(200).json({ message: "User has been deleted successfully." });
+  }
 }
