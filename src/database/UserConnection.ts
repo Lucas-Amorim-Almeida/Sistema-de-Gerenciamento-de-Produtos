@@ -16,6 +16,12 @@ export default class UserConnection {
     return new User(user.username, user.password, user.id);
   }
 
+  public static async getUserById(id: string) {
+    const user = await client.user.findUnique({ where: { id } });
+    if (user === null) return user;
+    return new User(user.username, user.password, user.id);
+  }
+
   public static async updatePassword(userId: string, newPassword: string) {
     const updatedUser = await client.user.update({
       where: { id: userId },
