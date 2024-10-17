@@ -28,16 +28,16 @@ export default class UserController {
 
     //buscando usuário correspondente ao id vindo atravez da request
     const dbUser = await UserConnection.getUser(username);
-    if (dbUser === null) throw new NotFoundError("Usuario nao encontrado.");
+    if (dbUser === null) throw new NotFoundError("User not found.");
 
     //comparação entre a senha vinda pela request com a senha do usuário no banco
     if (!(await dbUser.userCompare(requestUser)))
-      throw new BadRequestError("Senha incorreta.");
+      throw new BadRequestError("Password is incorrect or invalid.");
 
     //retorna status 200 e id do usuário se as senhas coincidem
     const dbUserData = dbUser.getUser();
     if (!("id" in dbUserData))
-      throw new InternalServerError("Erro interno do servidor.");
+      throw new InternalServerError("An Internal server error has occurred.");
     res.status(200).json({ user_id: dbUserData.id });
   }
 
@@ -47,12 +47,12 @@ export default class UserController {
 
     //buscando usuário correspondente ao id vindo atravez da request
     const dbUser = await UserConnection.getUserById(id);
-    if (dbUser === null) throw new NotFoundError("Usuario nao encontrado.");
+    if (dbUser === null) throw new NotFoundError("User not found.");
 
     //requestUser: usuário sem username e password e id vindos atravez da request
     const requestUser = new User("", password);
     if (!(await dbUser.userCompare(requestUser)))
-      throw new BadRequestError("Senha incorreta.");
+      throw new BadRequestError("Password is incorrect or invalid.");
 
     //tempUser: usuário temporário criado para fazer uso do método de hash de senha
     const tempUser = new User("", new_password);
