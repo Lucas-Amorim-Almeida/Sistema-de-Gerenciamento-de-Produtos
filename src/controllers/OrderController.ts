@@ -1,0 +1,131 @@
+import Order from "@/core/Order";
+import { OrderStatus } from "@/core/OrderStatus.enum";
+import OrderConnection from "@/database/OrderConnection";
+import ProductConnection from "@/database/ProductConnection";
+import { BadRequestError, NotFoundError } from "@/utils/API_Errors";
+import getToken from "@/utils/getTokenFromHeaders";
+import { Request, Response } from "express";
+
+type ProductListRequest = { product_id: string; quantity: number };
+
+export default class OrderController {
+  static async createOrder(req: Request, res: Response) {
+    const products: ProductListRequest[] = req.body.products;
+    const userID = getToken(req);
+
+    const firstProduct = await ProductConnection.findProductById(
+      products[0].product_id,
+    );
+    if (firstProduct === null)
+      throw new BadRequestError("A product is required.");
+
+    const requestOrder = new Order(firstProduct, products[0].quantity, userID);
+
+    if (products.length > 1) {
+      for (let i = 1; i < products.length; i++) {
+        const product = await ProductConnection.findProductById(
+          products[i].product_id,
+        );
+        if (product === null)
+          throw new BadRequestError("A product is required.");
+
+        requestOrder.addProductToOrder(product, products[i].quantity);
+      }
+    }
+
+    const newOrder = await OrderConnection.createOrder(requestOrder);
+
+    res.status(201).json({ order: newOrder });
+  }
+
+  static async getAllOrders(req: Request, res: Response) {
+    const user_id = req.params.user_id;
+
+    const orders = await OrderConnection.getOrders(user_id);
+
+    res.status(200).json({ orders });
+  }
+
+  static async getOrderById(req: Request, res: Response) {
+    const order_id = req.params.order_id;
+
+    const order = await OrderConnection.getOrderById(order_id);
+
+    res.status(200).json({ order_data: order });
+  }
+
+  static async updateOrderStatus(req: Request, res: Response) {
+    const order_id = req.params.order_id;
+    const { order_status } = req.body;
+
+    const { order_data } = await OrderConnection.getOrderById(order_id);
+    if (!order_data) throw new NotFoundError("Order not found.");
+
+    if (order_data.status === OrderStatus.FINISHED)
+      throw new BadRequestError("Order marked as completed.");
+
+    const status =
+      Object.values(OrderStatus).find(
+        (value) => value === order_status.toLocaleUpperCase(),
+      ) || null;
+
+    if (!status) throw new BadRequestError("Order status is invalid.");
+
+    const updatedOrder = await OrderConnection.updateOrderStatus(
+      order_id,
+      order_status.toLocaleUpperCase(),
+    );
+
+    res.status(200).json({ order: updatedOrder });
+  }
+
+  static async updateOrderRequest(req: Request, res: Response) {
+    const order_id = req.params.order_id;
+    const products: ProductListRequest[] = req.body.products;
+
+    // busca os produtos do pedido na base de dados
+    const { order_itens: dbProductInOrder } =
+      await OrderConnection.getOrderById(order_id);
+
+    // Mapeia os produtos recebidos e os existentes para comparação
+    const existingMap = new Map(
+      dbProductInOrder.map((product) => [product.product_id, product.quantity]),
+    );
+    const incomingMap = new Map(
+      products.map((product) => [product.product_id, product.quantity]),
+    );
+
+    // Identifica as operações necessárias
+    const toAdd = products.filter(
+      (product) => !existingMap.has(product.product_id),
+    );
+
+    for (const item of toAdd) {
+      if (!(await ProductConnection.findProductById(item.product_id)))
+        throw new NotFoundError(`Product ID '${item.product_id}' not found.`);
+    }
+
+    const toRemove = dbProductInOrder.filter(
+      (product) => !incomingMap.has(product.product_id),
+    );
+    const toUpdate = products.filter(
+      (product) =>
+        existingMap.has(product.product_id) &&
+        existingMap.get(product.product_id) !== product.quantity,
+    );
+
+    await OrderConnection.updateOrderRequest(
+      order_id,
+      toAdd,
+      toRemove,
+      toUpdate,
+    );
+
+    res.status(200).json({ messge: "Update completed successfully." });
+  }
+
+  static async deleteOrder(req: Request, res: Response) {
+    await OrderConnection.deleteOrder(req.params.order_id);
+    res.status(200).json("Order deleted successfully.");
+  }
+}

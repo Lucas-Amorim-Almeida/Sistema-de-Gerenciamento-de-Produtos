@@ -32,10 +32,19 @@ export default class ProductConnection {
   }
 
   public static async findProductById(id: string) {
-    const productList = await client.product.findFirst({
+    const product = await client.product.findFirst({
       where: { id },
     });
-    return productList;
+
+    return product === null
+      ? null
+      : new Product(
+          product.name,
+          product.description,
+          product.image,
+          Number(product.price),
+          product.id,
+        );
   }
 
   public static async updateProductInfo(
