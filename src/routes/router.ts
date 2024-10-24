@@ -7,6 +7,6 @@ const router = Router();
 
 router.use("/user", userRoutes);
 router.use("/product", productRoutes);
-router.use("/order", orderRoutes);
+router.use("/order", userRoutes, orderRoutes);
 
 export default router;

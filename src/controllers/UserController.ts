@@ -5,6 +5,7 @@ import {
   InternalServerError,
   NotFoundError,
 } from "@/utils/API_Errors";
+import Jsonwebtoken from "@/utils/Jsonwebtoken";
 import { Request, Response } from "express";
 
 export default class UserController {
@@ -18,8 +19,10 @@ export default class UserController {
     //criação de usuário na base de dados
     const newUser = await UserConnection.createNewUser(user);
 
-    //retorna status 201 e id
-    res.status(201).json({ user_id: newUser.id });
+    res.status(201).json({
+      user_id: newUser.id,
+      token: Jsonwebtoken.tokenAccessGenerator(newUser.id),
+    });
   }
 
   public static async login(req: Request, res: Response) {
@@ -38,7 +41,11 @@ export default class UserController {
     const dbUserData = dbUser.getUser();
     if (!("id" in dbUserData))
       throw new InternalServerError("An Internal server error has occurred.");
-    res.status(200).json({ user_id: dbUserData.id });
+
+    res.status(200).json({
+      user_id: dbUserData.id,
+      token: Jsonwebtoken.tokenAccessGenerator(dbUserData.id),
+    });
   }
 
   public static async changePassword(req: Request, res: Response) {

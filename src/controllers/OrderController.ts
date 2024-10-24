@@ -2,8 +2,11 @@ import Order from "@/core/Order";
 import { OrderStatus } from "@/core/OrderStatus.enum";
 import OrderConnection from "@/database/OrderConnection";
 import ProductConnection from "@/database/ProductConnection";
-import { BadRequestError, NotFoundError } from "@/utils/API_Errors";
-import getToken from "@/utils/getTokenFromHeaders";
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+} from "@/utils/API_Errors";
 import { Request, Response } from "express";
 
 type ProductListRequest = { product_id: string; quantity: number };
@@ -11,7 +14,10 @@ type ProductListRequest = { product_id: string; quantity: number };
 export default class OrderController {
   static async createOrder(req: Request, res: Response) {
     const products: ProductListRequest[] = req.body.products;
-    const userID = getToken(req);
+    const userID = req.user?.id;
+
+    if (!userID)
+      throw new InternalServerError("An Internal server error has occurred");
 
     const firstProduct = await ProductConnection.findProductById(
       products[0].product_id,
