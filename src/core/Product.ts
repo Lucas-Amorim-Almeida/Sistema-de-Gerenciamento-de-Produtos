@@ -1,21 +1,25 @@
 import { ProductType } from "@/@types/types";
 
+type ProductParams = {
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  owner_id: string;
+  id?: string;
+};
+
 export default class Product {
   private product: ProductType;
 
-  constructor(
-    name: string,
-    description: string,
-    image: string,
-    price: number,
-    id?: string,
-  ) {
+  constructor(data: ProductParams) {
     this.product = {
-      id: id ? id : "",
-      name,
-      image,
-      description,
-      price,
+      id: data.id ? data.id : "",
+      name: data.name,
+      image: data.image,
+      description: data.description,
+      price: data.price,
+      owner_id: data.owner_id,
     };
   }
 
@@ -39,6 +43,7 @@ export default class Product {
       image: this.product.image,
       description: this.product.description,
       price: this.product.price,
+      owner_id: this.product.owner_id,
     };
     return this.product.id === "" ? productInfo : this.product;
   }

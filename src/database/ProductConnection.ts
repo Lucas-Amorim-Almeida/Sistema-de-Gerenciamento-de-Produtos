@@ -38,13 +38,14 @@ export default class ProductConnection {
 
     return product === null
       ? null
-      : new Product(
-          product.name,
-          product.description,
-          product.image,
-          Number(product.price),
-          product.id,
-        );
+      : new Product({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          image: product.image,
+          price: Number(product.price),
+          owner_id: product.owner_id,
+        });
   }
 
   public static async updateProductInfo(

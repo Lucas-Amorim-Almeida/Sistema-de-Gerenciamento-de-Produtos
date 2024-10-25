@@ -10,9 +10,7 @@ import { pick } from "lodash";
 
 export default class ProductController {
   public static async createProduct(req: Request, res: Response) {
-    const { name, description, image, price } = req.body;
-
-    const requestProduct = new Product(name, description, image, price);
+    const requestProduct = new Product({ owner_id: req.user?.id, ...req.body });
     const newProoduct = await ProductConnection.createProduct(requestProduct);
 
     res.status(201).json(newProoduct);

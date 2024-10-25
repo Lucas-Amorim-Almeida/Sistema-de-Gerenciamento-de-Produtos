@@ -12,6 +12,7 @@ export type ProductType = {
   image: string;
   description: string;
   price: number;
+  owner_id: string;
 };
 
 export type OrderRequestType = {
