@@ -4,11 +4,11 @@ type JWTPayload = {
   id: string;
 };
 
-export default class Jsonwebtoken {
-  private static SECRET_ACCESS = process.env.ACCESS_TOKEN_SECRET || "";
+const SECRET_ACCESS = process.env.ACCESS_TOKEN_SECRET || "";
 
+export default class Jsonwebtoken {
   static tokenAccessGenerator(id: string) {
-    const token = jwt.sign({ id }, this.SECRET_ACCESS, {
+    const token = jwt.sign({ id }, SECRET_ACCESS, {
       expiresIn: "1h", //10*60sec = 10min
     });
 
@@ -16,7 +16,7 @@ export default class Jsonwebtoken {
   }
 
   static tokenAccessReader(token: string) {
-    const { id } = jwt.verify(token, this.SECRET_ACCESS) as JWTPayload;
+    const { id } = jwt.verify(token, SECRET_ACCESS) as JWTPayload;
     return { id };
   }
 }
