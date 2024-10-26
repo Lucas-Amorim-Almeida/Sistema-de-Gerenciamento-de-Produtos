@@ -6,7 +6,7 @@ const userRoutes = Router();
 
 userRoutes.post("/", UserController.createUser);
 userRoutes.post("/login", UserController.login);
-userRoutes.post("/password/:id", userAuth, UserController.changePassword);
-userRoutes.delete("/:id", userAuth, UserController.deleteUser);
+userRoutes.post("/password", userAuth, UserController.changePassword);
+userRoutes.delete("/", userAuth, UserController.deleteUser);
 
 export default userRoutes;

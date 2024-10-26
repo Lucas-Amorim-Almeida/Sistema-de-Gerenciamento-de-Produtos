@@ -55,7 +55,7 @@ export default class ProductController {
       if (updateResponse === null)
         throw new NotFoundError(`Product not found.`);
 
-      res.json(200).json({ message: "Product has been updated successfully." });
+      res.status(200).json();
     } catch (error) {
       if (error instanceof NotFoundError)
         throw new NotFoundError(error.message);
@@ -71,6 +71,6 @@ export default class ProductController {
     const deleleResponse = await ProductConnection.deleteProduct(id);
     if (deleleResponse === null) throw new NotFoundError(`Product not found.`);
 
-    res.status(200).json({ message: "Product has been deleted successfully." });
+    res.status(200).json();
   }
 }

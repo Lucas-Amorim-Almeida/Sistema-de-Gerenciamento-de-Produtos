@@ -19,8 +19,10 @@ export default class UserController {
     //criação de usuário na base de dados
     const newUser = await UserConnection.createNewUser(user);
 
+    if (!newUser)
+      throw new InternalServerError("An Internal server error has occurred.");
+
     res.status(201).json({
-      user_id: newUser.id,
       token: Jsonwebtoken.tokenAccessGenerator(newUser.id),
     });
   }
@@ -43,14 +45,16 @@ export default class UserController {
       throw new InternalServerError("An Internal server error has occurred.");
 
     res.status(200).json({
-      user_id: dbUserData.id,
       token: Jsonwebtoken.tokenAccessGenerator(dbUserData.id),
     });
   }
 
   public static async changePassword(req: Request, res: Response) {
     const { password, new_password } = req.body;
-    const id = req.params.id;
+    const id = req.user?.id;
+
+    if (!id)
+      throw new InternalServerError("An Internal server error has occurred.");
 
     //buscando usuário correspondente ao id vindo atravez da request
     const dbUser = await UserConnection.getUserById(id);
@@ -68,14 +72,16 @@ export default class UserController {
     //update da senha no banco de dados
     await UserConnection.updatePassword(id, tempUser.getUser().password);
 
-    res.status(200).json({ message: "Password changed successfully." });
+    res.status(200).json();
   }
 
   public static async deleteUser(req: Request, res: Response) {
-    const id = req.params.id;
+    const id = req.user?.id;
+    if (!id)
+      throw new InternalServerError("An Internal server error has occurred.");
 
     await UserConnection.deleteUser(id);
 
-    res.status(200).json({ message: "User has been deleted successfully." });
+    res.status(200).json();
   }
 }

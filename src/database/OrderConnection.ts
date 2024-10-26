@@ -5,6 +5,12 @@ import { OrderStatus } from "@/core/OrderStatus.enum";
 import { NotFoundError } from "@/utils/API_Errors";
 
 type ProductListRequest = { product_id: string; quantity: number };
+type UpdateParams = {
+  order_id: string;
+  toAdd: ProductListRequest[];
+  toRemove: { product_id: string }[];
+  toUpdate: ProductListRequest[];
+};
 
 export default class OrderConnection {
   public static createOrder(order: Order) {
@@ -64,12 +70,12 @@ export default class OrderConnection {
     return updatedOrder;
   }
 
-  public static async updateOrderRequest(
-    order_id: string,
-    toAdd: ProductListRequest[],
-    toRemove: { product_id: string }[],
-    toUpdate: ProductListRequest[],
-  ) {
+  public static async updateOrderRequest({
+    order_id,
+    toAdd,
+    toRemove,
+    toUpdate,
+  }: UpdateParams) {
     await client.$transaction(async (tx) => {
       if (toRemove.length > 0) {
         await tx.orderRequest.deleteMany({

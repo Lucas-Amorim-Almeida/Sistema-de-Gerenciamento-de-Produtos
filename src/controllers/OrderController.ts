@@ -7,6 +7,7 @@ import {
   InternalServerError,
   NotFoundError,
 } from "@/utils/API_Errors";
+import orderFormater from "@/utils/orderFormat";
 import { Request, Response } from "express";
 
 type ProductListRequest = { product_id: string; quantity: number };
@@ -17,13 +18,12 @@ export default class OrderController {
     const userID = req.user?.id;
 
     if (!userID)
-      throw new InternalServerError("An Internal server error has occurred");
+      throw new InternalServerError("An Internal server error has occurred.");
 
     const firstProduct = await ProductConnection.findProductById(
       products[0].product_id,
     );
-    if (firstProduct === null)
-      throw new BadRequestError("A product is required.");
+    if (!firstProduct) throw new BadRequestError("A product is required.");
 
     const requestOrder = new Order(firstProduct, products[0].quantity, userID);
 
@@ -32,8 +32,7 @@ export default class OrderController {
         const product = await ProductConnection.findProductById(
           products[i].product_id,
         );
-        if (product === null)
-          throw new BadRequestError("A product is required.");
+        if (!product) throw new BadRequestError("A product is required.");
 
         requestOrder.addProductToOrder(product, products[i].quantity);
       }
@@ -41,25 +40,38 @@ export default class OrderController {
 
     const newOrder = await OrderConnection.createOrder(requestOrder);
 
-    res.status(201).json({ order: newOrder });
+    res.status(201).json({ order: orderFormater(newOrder) });
   }
 
   static async getAllOrders(req: Request, res: Response) {
-    const user_id = req.params.user_id;
+    const user_id = req.user?.id;
+    if (!user_id)
+      throw new InternalServerError("An Internal server error has occurred.");
 
     const orders = await OrderConnection.getOrders(user_id);
+    const formatedResponse = orders.map((order) => orderFormater(order));
 
-    res.status(200).json({ orders });
+    res.status(200).json({ orders: formatedResponse });
   }
 
   static async getOrderById(req: Request, res: Response) {
     const order_id = req.params.order_id;
 
-    const order = await OrderConnection.getOrderById(order_id);
+    const { order_data, order_itens } =
+      await OrderConnection.getOrderById(order_id);
+    if (!order_data)
+      throw new InternalServerError("An Internal server error has occurred.");
 
-    res.status(200).json({ order_data: order });
+    const formatedResponse = {
+      order_data: orderFormater(order_data),
+      order_itens,
+    };
+
+    res.status(200).json(formatedResponse);
   }
 
+  //implementar graus de acessos para usuários para que somente contas de ceto nível possam alterar os
+  //status do pedido. Nesse caso, teria que implementar uma espécie de hieraquia de contas.
   static async updateOrderStatus(req: Request, res: Response) {
     const order_id = req.params.order_id;
     const { order_status } = req.body;
@@ -82,7 +94,9 @@ export default class OrderController {
       order_status.toLocaleUpperCase(),
     );
 
-    res.status(200).json({ order: updatedOrder });
+    if (!updatedOrder)
+      throw new InternalServerError("An Internal server error has occurred.");
+    res.status(200).json();
   }
 
   static async updateOrderRequest(req: Request, res: Response) {
@@ -120,18 +134,18 @@ export default class OrderController {
         existingMap.get(product.product_id) !== product.quantity,
     );
 
-    await OrderConnection.updateOrderRequest(
+    await OrderConnection.updateOrderRequest({
       order_id,
       toAdd,
       toRemove,
       toUpdate,
-    );
+    });
 
-    res.status(200).json({ messge: "Update completed successfully." });
+    res.status(200).json();
   }
 
   static async deleteOrder(req: Request, res: Response) {
     await OrderConnection.deleteOrder(req.params.order_id);
-    res.status(200).json("Order deleted successfully.");
+    res.status(200).json();
   }
 }
