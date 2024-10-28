@@ -6,6 +6,7 @@ describe("Tests of Product class", () => {
     image: "/**",
     description: "Product mock test",
     price: 0,
+    owner_id: "user-id--000*",
   };
   const productWithIdData = {
     id: "00002",
@@ -13,25 +14,15 @@ describe("Tests of Product class", () => {
     image: "/**2",
     description: "Product mock test",
     price: 0,
+    owner_id: "user-id--000**",
   };
 
   let product: Product;
   let productWithId: Product;
 
   beforeEach(() => {
-    product = new Product(
-      productData.name,
-      productData.description,
-      productData.image,
-      productData.price,
-    );
-    productWithId = new Product(
-      productWithIdData.name,
-      productWithIdData.description,
-      productWithIdData.image,
-      productWithIdData.price,
-      productWithIdData.id,
-    );
+    product = new Product(productData);
+    productWithId = new Product(productWithIdData);
   });
 
   describe("Test of class Constructor", () => {
@@ -44,10 +35,10 @@ describe("Tests of Product class", () => {
   describe("Test of getProduct method", () => {
     it("Should returns a object similar to ProductType", () => {
       expect(product.getProduct()).toEqual(productData);
-      expect(Object.keys(product.getProduct())).toHaveLength(4);
+      expect(Object.keys(product.getProduct())).toHaveLength(5);
 
       expect(productWithId.getProduct()).toEqual(productWithIdData);
-      expect(Object.keys(productWithId.getProduct())).toHaveLength(5);
+      expect(Object.keys(productWithId.getProduct())).toHaveLength(6);
     });
   });
 
@@ -58,7 +49,7 @@ describe("Tests of Product class", () => {
 
       product.setId(newId);
       expect(product.getProduct()).toEqual(userIdAdded);
-      expect(Object.keys(product.getProduct())).toHaveLength(5);
+      expect(Object.keys(product.getProduct())).toHaveLength(6);
     });
 
     it("Should not have id change", () => {

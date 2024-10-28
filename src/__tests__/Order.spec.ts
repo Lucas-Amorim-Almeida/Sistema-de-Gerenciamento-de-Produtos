@@ -9,6 +9,7 @@ describe("Tests of Product class", () => {
     image: "/**1",
     description: "Product mock test",
     price: 0,
+    owner_id: "user-000*",
   };
   const orderData = {
     status: OrderStatus.PROCESSING,
@@ -25,13 +26,7 @@ describe("Tests of Product class", () => {
   let orderWithId: Order;
 
   beforeEach(() => {
-    product = new Product(
-      productData.name,
-      productData.description,
-      productData.image,
-      productData.price,
-      productData.id,
-    );
+    product = new Product(productData);
 
     order = new Order(product, 10, "user1-id");
     orderWithId = new Order(product, 10, "user1-id", "id-0002");
@@ -48,12 +43,14 @@ describe("Tests of Product class", () => {
     });
 
     it("Should return the error: 'this product not exists in database.'", () => {
-      const product2 = new Product(
-        "product name",
-        "product description",
-        "/*",
-        0.0,
-      );
+      const productData2 = {
+        name: "product name",
+        image: "/**2",
+        description: "product description",
+        price: 0,
+        owner_id: "user-000**",
+      };
+      const product2 = new Product(productData2);
       expect(() => new Order(product2, 1, "user-id")).toThrow(
         "this product not exists in database.",
       );
@@ -101,40 +98,60 @@ describe("Tests of Product class", () => {
     });
 
     it("Should have return null product without id", () => {
+      const productData2 = {
+        name: "product-*",
+        image: "/**&",
+        description: "description",
+        price: 10.0,
+        owner_id: "user-000&",
+      };
       //ao fazer busca por um objeto sem id deve-se ter retorno nulo
-      expect(order.search(new Product("name", "desc", "/*", 10.0))).toBeNull();
+      expect(order.search(new Product(productData2))).toBeNull();
     });
 
     it("Should have return null product withid", () => {
+      const productData2 = {
+        id: "00**",
+        name: "product-*",
+        image: "/**&",
+        description: "description",
+        price: 10.0,
+        owner_id: "user-000&",
+      };
       //ao fazer busca por um objeto sem id deve-se ter retorno nulo
-      expect(
-        order.search(new Product("name", "desc", "/*", 10.0, "****")),
-      ).toBeNull();
+      expect(order.search(new Product(productData2))).toBeNull();
     });
   });
 
   describe("Test of addProductToOrder method", () => {
+    const productData2 = {
+      id: "0000*",
+      name: "product-*",
+      image: "/**&",
+      description: "description",
+      price: 10.0,
+      owner_id: "user-000&",
+    };
+
     it("Should add new item to product list", () => {
       for (let i = 2; i < 100; i++) {
-        const newProduct = new Product(
-          "name",
-          "description",
-          "*/",
-          10,
-          "id-000" + i,
-        );
+        const newDataProduct = { ...productData2, id: "0000*-" + i };
+        const newProduct = new Product(newDataProduct);
         order.addProductToOrder(newProduct, 1);
         expect(order.getOrder().listItens).toHaveLength(i);
       }
     });
 
     it("Should not add product with negative quantity in order", () => {
-      const productTest = new Product("name", "desc", "/*", 10, "id-000**");
+      const productTest = new Product(productData2);
       expect(order.addProductToOrder(productTest, -1)).toBeUndefined();
     });
 
     it("Should throw an exception in case that product do not have id", () => {
-      const productWithOutId = new Product("name", "desc", "/*", 10);
+      //eslint-disable-next-line
+      const { id, ...allowedProps } = productData2;
+
+      const productWithOutId = new Product(allowedProps);
 
       expect(() => order.addProductToOrder(productWithOutId, 10)).toThrow(
         "this product not exists in database.",
@@ -147,17 +164,19 @@ describe("Tests of Product class", () => {
   });
 
   describe("Test of removeProductFromOrder method", () => {
+    const productData2 = {
+      id: "0000*",
+      name: "product-*",
+      image: "/**&",
+      description: "description",
+      price: 10.0,
+      owner_id: "user-000&",
+    };
     it("Should be remove product from order", () => {
       //Adiciona novo produto ao pedido para o teste de remoção,
       //esse produto adicionado nas linhas a seguir que será removido neste teste
-      const otherProdId = "id-0000***";
-      const otherProduct = new Product(
-        "will-not-be-removed",
-        "will not be removed",
-        "/*",
-        10.0,
-        otherProdId,
-      );
+      const otherProdId = productData2.id;
+      const otherProduct = new Product(productData2);
       order.addProductToOrder(otherProduct, 1);
 
       order.removeProductFromOrder(product);
@@ -168,13 +187,7 @@ describe("Tests of Product class", () => {
     });
 
     it("Should not remove if product not find", () => {
-      const otherProduct = new Product(
-        "will-not-be-removed",
-        "will not be removed",
-        "/*",
-        10.0,
-        "id-0000***",
-      );
+      const otherProduct = new Product(productData2);
 
       expect(order.removeProductFromOrder(otherProduct)).toBeUndefined();
     });
@@ -200,14 +213,16 @@ describe("Tests of Product class", () => {
     });
 
     it("Should not update product if it not found", () => {
+      const productData2 = {
+        id: "0000*",
+        name: "product-*",
+        image: "/**&",
+        description: "description",
+        price: 10.0,
+        owner_id: "user-000&",
+      };
       const qty = 100;
-      const otherProduct = new Product(
-        "will-not-be-removed",
-        "will not be removed",
-        "/*",
-        10.0,
-        "id-0000***",
-      );
+      const otherProduct = new Product(productData2);
       expect(order.updateOrderItem(otherProduct, qty)).toBeUndefined();
     });
   });
