@@ -7,7 +7,7 @@ import {
   InternalServerError,
   NotFoundError,
 } from "@/utils/API_Errors";
-import orderFormater from "@/utils/orderFormat";
+import { orderFormater, orderItemFormater } from "@/utils/formatHelper";
 import { Request, Response } from "express";
 
 type ProductListRequest = { product_id: string; quantity: number };
@@ -62,9 +62,11 @@ export default class OrderController {
     if (!order_data)
       throw new InternalServerError("An Internal server error has occurred.");
 
+    const orderItens = order_itens.map((item) => orderItemFormater(item));
+
     const formatedResponse = {
       order_data: orderFormater(order_data),
-      order_itens,
+      order_itens: orderItens,
     };
 
     res.status(200).json(formatedResponse);

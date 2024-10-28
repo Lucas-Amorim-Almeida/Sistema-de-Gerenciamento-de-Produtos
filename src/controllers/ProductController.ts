@@ -5,6 +5,7 @@ import {
   InternalServerError,
   NotFoundError,
 } from "@/utils/API_Errors";
+import { productFormater } from "@/utils/formatHelper";
 import { Request, Response } from "express";
 import { pick } from "lodash";
 
@@ -13,14 +14,15 @@ export default class ProductController {
     const requestProduct = new Product({ owner_id: req.user?.id, ...req.body });
     const newProoduct = await ProductConnection.createProduct(requestProduct);
 
-    res.status(201).json(newProoduct);
+    res.status(201).json(productFormater(newProoduct));
   }
 
   public static async getAll(req: Request, res: Response) {
     const qtyProduct: number = Number(req.query.take);
     const products = await ProductConnection.getAllProduct(qtyProduct);
 
-    res.status(200).json({ product_list: products });
+    const productList = products.map((item) => productFormater(item));
+    res.status(200).json({ product_list: productList });
   }
 
   public static async findProduct(req: Request, res: Response) {
@@ -30,7 +32,8 @@ export default class ProductController {
       Number(take),
     );
 
-    res.status(200).json({ product_list: products });
+    const productList = products.map((item) => productFormater(item));
+    res.status(200).json({ product_list: productList });
   }
 
   public static async updateProduct(req: Request, res: Response) {

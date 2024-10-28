@@ -22,8 +22,9 @@ export default class UserController {
     if (!newUser)
       throw new InternalServerError("An Internal server error has occurred.");
 
+    const token = Jsonwebtoken.tokenAccessGenerator(newUser.id);
     res.status(201).json({
-      token: Jsonwebtoken.tokenAccessGenerator(newUser.id),
+      token,
     });
   }
 
@@ -44,8 +45,9 @@ export default class UserController {
     if (!("id" in dbUserData))
       throw new InternalServerError("An Internal server error has occurred.");
 
+    const token = Jsonwebtoken.tokenAccessGenerator(dbUserData.id);
     res.status(200).json({
-      token: Jsonwebtoken.tokenAccessGenerator(dbUserData.id),
+      token,
     });
   }
 
