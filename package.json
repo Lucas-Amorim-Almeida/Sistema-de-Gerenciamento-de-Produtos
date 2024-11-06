@@ -17,9 +17,9 @@
     "prepare": "husky"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Lucas Amorim Almeida",
+  "license": "MIT",
+  "description": "Sistema simplificado para o gerenciamento de pedidos",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
