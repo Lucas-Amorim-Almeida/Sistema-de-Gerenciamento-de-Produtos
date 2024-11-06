@@ -10,7 +10,7 @@ const userAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = Jsonwebtoken.tokenAccessReader(encryptedToken);
 
   if (!(await UserConnection.getUserById(token.id)))
-    throw new UnauthorizedError("Authorization header is required.");
+    throw new UnauthorizedError("Access Unauthorized.");
 
   req.user = { id: token.id };
 

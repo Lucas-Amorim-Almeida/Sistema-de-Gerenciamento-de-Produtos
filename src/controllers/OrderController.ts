@@ -17,6 +17,15 @@ export default class OrderController {
     const products: ProductListRequest[] = req.body.products;
     const userID = req.user?.id;
 
+    if (
+      !products ||
+      !products[0] ||
+      !products[0].product_id ||
+      !products[0].quantity
+    )
+      throw new BadRequestError(
+        "Request does not have all required properties.",
+      );
     if (!userID)
       throw new InternalServerError("An Internal server error has occurred.");
 
@@ -77,6 +86,10 @@ export default class OrderController {
   static async updateOrderStatus(req: Request, res: Response) {
     const order_id = req.params.order_id;
     const { order_status } = req.body;
+    if (!order_status)
+      throw new BadRequestError(
+        "Request does not have all required properties.",
+      );
 
     const { order_data } = await OrderConnection.getOrderById(order_id);
     if (!order_data) throw new NotFoundError("Order not found.");

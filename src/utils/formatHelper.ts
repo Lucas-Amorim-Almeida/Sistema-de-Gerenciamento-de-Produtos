@@ -53,7 +53,6 @@ const productFormater = (productData: ProductParams) => {
 
 const orderItemFormater = (data: OrderItemParams) => {
   const formatedData = {
-    order_id: data.order_id,
     product_id: data.product_id,
     quantity: data.quantity,
   };

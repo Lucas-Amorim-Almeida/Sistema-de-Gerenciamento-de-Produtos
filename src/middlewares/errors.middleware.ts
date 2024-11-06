@@ -1,8 +1,5 @@
 import { ApiError } from "@/utils/API_Errors";
 import { NextFunction, Request, Response } from "express";
-import { errors } from "@/utils/messages";
-
-const { globalsErrors } = errors;
 
 const errorsMiddleWare = (
   error: Error & Partial<ApiError>,
@@ -12,7 +9,7 @@ const errorsMiddleWare = (
 ) => {
   console.log(error.message);
   const statusCode: number = error.statusCode ?? 500;
-  const message = error.statusCode ? error.message : globalsErrors.serverError;
+  const message = error.statusCode ? error.message : "A server error occurred.";
 
   res.status(statusCode).json({ message: message });
 

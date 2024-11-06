@@ -11,6 +11,12 @@ import { pick } from "lodash";
 
 export default class ProductController {
   public static async createProduct(req: Request, res: Response) {
+    const { name, image, description, price } = req.body;
+    if (!name || !image || !description || !price)
+      throw new BadRequestError(
+        "Request does not have all required properties.",
+      );
+
     const requestProduct = new Product({ owner_id: req.user?.id, ...req.body });
     const newProoduct = await ProductConnection.createProduct(requestProduct);
 

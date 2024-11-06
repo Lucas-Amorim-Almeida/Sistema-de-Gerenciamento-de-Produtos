@@ -1,0 +1,922 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Sistema de Gerenciamento de Pedidos: SGP-API",
+    "summary": "API que fornece uma forma simplicicada para gestão de pedidos.",
+    "description": "Essa API fornece uma versão simplicada para gerenciamento de Pedidos. Com foco somente nesse ponto, isso quer dizer que, as rotas de usuário e de produtos não são muito detalhadas (no sentido de conter uma implementação bastante simplória).",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Developtment server"
+    },
+    {
+      "url": "",
+      "description": "Staging  server"
+    },
+    {
+      "url": "",
+      "description": "Production server"
+    }
+  ],
+
+  "paths": {
+    "/user": {
+      "post": {
+        "summary": "Insere informações de um novo usuário na base de dados.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserRequestBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserToken" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove as informações de um usuário da base de dados",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "401": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "summary": "Rota utilizada para que usuários façam login para poder receber um token que o permitirá acessar certas rotas da aplicação.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserRequestBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserToken" }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLoginPasswordError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserNotFoundError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/password": {
+      "post": {
+        "summary": "Altera a senha fornecida no momento da criação do usuário.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLoginPasswordError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserNotFoundError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/product": {
+      "get": {
+        "summary": "Envia certa quantidade de produtos que estão na base de dados.",
+        "parameters": [
+          {
+            "name": "take",
+            "in": "query",
+            "description": "Quantidade de produtos que deseja obter como retorno",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductsInfoList" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Insere as informações de um novo produto na base de dados.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProductRequestBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BadRequestError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Edita certas informações de um produto existente na base de dados",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "url",
+            "description": "ID do produto no qual a atualização será efetuada.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadProductRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Ok" },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Request body is empty or contains invalid fields."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove as informações de um produto da base de dados",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "url",
+            "description": "ID do produto no qual a atualização será efetuada.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Ok" },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/search": {
+      "get": {
+        "summary": "Pesquisa produtos na base de dados",
+        "parameters": [
+          {
+            "name": "product_name",
+            "in": "query",
+            "description": "Nome ou trecho do nome do produto",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "Quantidade de produtos que deseja obter como retorno",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductsInfoList" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/order": {
+      "get": {
+        "summary": "Envia um array com as informações de todos os pedidos de determinado usuário.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OrdersOfUser" }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Insere as informações de um novo pedido na base de dados.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderRequestBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": { "$ref": "#/components/schemas/OrderData" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Dentre as possíveis messagens estão: 'A product is required' e 'Request does not have all required properties.'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza certas informações do pedido na base de dados.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "url",
+            "description": "ID do pedido do qual deseja obter informações",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderRequestBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove as informações de um pedido da base de dados.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "url",
+            "description": "ID do pedido do qual deseja obter informações",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "order/products_in_order": {
+      "get": {
+        "summary": "Envia um array com as informações de determinado pedido.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "url",
+            "description": "ID do pedido do qual deseja obter informações",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductsOfOrders" }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "order/status": {
+      "put": {
+        "summary": "Atualiza o status do pedido na base de dados.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "url",
+            "description": "ID do pedido do qual deseja obter informações",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "order_status": {
+                    "type": "string",
+                    "description": "Status do pedido."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BadRequestError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnauthorizedError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "schemas": {
+      "securitySchemes": {
+        "BearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+
+      "UserToken": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "description": "Token utilizado para autenticação em várias rotas que necessitam que um usuário válido esteja logado.",
+            "type": "string"
+          }
+        }
+      },
+      "UserRequestBody": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "description": "Nome do usuário, consiste em uma apelido (nickname).",
+            "type": "string"
+          },
+          "password": {
+            "description": "Senha escolhida pelo usuário",
+            "type": "string"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "description": "Senha atual",
+            "type": "string"
+          },
+          "new_password": {
+            "description": "Nova senha",
+            "type": "string"
+          }
+        },
+        "required": ["password", "new_password"]
+      },
+
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "image": {
+            "type": "string",
+            "description": "URL da imagem do produto."
+          },
+          "price": { "type": "number" },
+          "description": {
+            "type": "string",
+            "description": "Texto de descrição do produto"
+          },
+          "owner_id": {
+            "type": "string",
+            "description": "Id do usuário/vendedor dono do produto."
+          }
+        }
+      },
+      "ProductRequestBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "image": {
+            "type": "string",
+            "description": "URL da imagem do produto."
+          },
+          "price": { "type": "number" },
+          "description": {
+            "type": "string",
+            "description": "Texto de escrição do produto"
+          }
+        }
+      },
+      "UploadProductRequestBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "image": {
+            "type": "string",
+            "description": "URL da imagem do produto."
+          },
+          "price": { "type": "number" },
+          "description": {
+            "type": "string",
+            "description": "Texto de escrição do produto"
+          }
+        },
+        "anyOf": [
+          { "required": ["name"] },
+          { "required": ["image"] },
+          { "required": ["price"] },
+          { "required": ["description"] }
+        ]
+      },
+      "ProductsInfoList": {
+        "type": "object",
+        "properties": {
+          "product_list": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Product" }
+          }
+        }
+      },
+
+      "OrderData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do Pedido."
+          },
+          "status": {
+            "type": "string",
+            "description": "Status do pedido."
+          }
+        }
+      },
+      "ProductOrderData": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "ID do Produto."
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantidade de produtos no pedido."
+          }
+        }
+      },
+      "OrdersOfUser": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderData"
+            }
+          }
+        }
+      },
+      "ProductsOfOrders": {
+        "type": "object",
+        "properties": {
+          "order_data": { "$ref": "#/components/schemas/OrderData" },
+          "order_itens": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProductOrderData" }
+          }
+        }
+      },
+      "OrderRequestBody": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProductOrderData" }
+          }
+        }
+      },
+
+      "BadRequestError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Request does not have all required properties."
+          }
+        }
+      },
+      "UserNotFoundError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "User not found.",
+            "type": "string"
+          }
+        }
+      },
+      "ProductNotFoundError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Message looks like 'Product not found'.",
+            "type": "string"
+          }
+        }
+      },
+      "UserLoginPasswordError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Password is incorrect or invalid.",
+            "type": "string"
+          }
+        }
+      },
+      "InternalServerError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "A server error occurred.",
+            "type": "string"
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Access Unauthorized.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
