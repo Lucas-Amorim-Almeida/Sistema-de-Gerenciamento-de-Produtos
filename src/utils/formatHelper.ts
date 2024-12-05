@@ -4,7 +4,7 @@ type ProductParams = {
   id: string;
   name: string;
   image: string;
-  price: Prisma.Decimal;
+  price: number | Prisma.Decimal;
   description: string;
   owner_id: string;
   created_at: Date;

@@ -13,6 +13,8 @@ export type ProductType = {
   description: string;
   price: number;
   owner_id: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type OrderRequestType = {

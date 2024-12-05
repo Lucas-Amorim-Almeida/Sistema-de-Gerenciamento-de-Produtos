@@ -354,6 +354,51 @@
         }
       }
     },
+    "/product/id": {
+      "get": {
+        "summary": "Retorna um produto da base de dados, baseado numa busca por ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "params",
+            "description": "ID do produto",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalServerError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/product/search": {
       "get": {
         "summary": "Pesquisa produtos na base de dados",
@@ -885,7 +930,7 @@
         "type": "object",
         "properties": {
           "message": {
-            "description": "Message looks like 'Product not found'.",
+            "description": "Product not found.",
             "type": "string"
           }
         }

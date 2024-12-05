@@ -1,3 +1,4 @@
+import { ProductType } from "@/@types/types";
 import Product from "@/core/Product";
 import ProductConnection from "@/database/ProductConnection";
 import {
@@ -29,6 +30,18 @@ export default class ProductController {
 
     const productList = products.map((item) => productFormater(item));
     res.status(200).json({ product_list: productList });
+  }
+
+  public static async getProductById(req: Request, res: Response) {
+    const { id } = req.params;
+    const product = await ProductConnection.findProductById(id);
+
+    if (!product) throw new NotFoundError(`Product with ID "${id}" not found.`);
+
+    const productData = product.getProduct();
+    const formatedProduct = productFormater(productData as ProductType);
+
+    res.status(200).json(formatedProduct);
   }
 
   public static async findProduct(req: Request, res: Response) {
@@ -69,7 +82,7 @@ export default class ProductController {
       if (error instanceof NotFoundError)
         throw new NotFoundError(error.message);
       if (error instanceof Error) {
-        throw new InternalServerError("An Internal server error has occurred");
+        throw new InternalServerError("An Internal server error has occurred.");
       }
     }
   }

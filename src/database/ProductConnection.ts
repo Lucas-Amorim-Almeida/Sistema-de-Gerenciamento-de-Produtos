@@ -6,7 +6,10 @@ import { Prisma } from "@prisma/client";
 export default class ProductConnection {
   public static async createProduct(product: Product) {
     const newProduct = await client.product.create({
-      data: product.getProduct() as Omit<ProductType, "id">,
+      data: product.getProduct() as Omit<
+        ProductType,
+        "id" | "created_at" | "updated_at"
+      >,
     });
     return newProduct;
   }
@@ -45,6 +48,8 @@ export default class ProductConnection {
           image: product.image,
           price: Number(product.price),
           owner_id: product.owner_id,
+          created_at: product.created_at,
+          updated_at: product.updated_at,
         });
   }
 

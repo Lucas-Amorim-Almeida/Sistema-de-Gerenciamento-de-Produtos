@@ -8,6 +8,7 @@ const productRoutes = Router();
 productRoutes.post("/", userAuth, ProductController.createProduct);
 
 productRoutes.get("/", ProductController.getAll);
+productRoutes.get("/id", ProductController.getProductById);
 productRoutes.get("/search", ProductController.findProduct);
 
 productRoutes.put(
